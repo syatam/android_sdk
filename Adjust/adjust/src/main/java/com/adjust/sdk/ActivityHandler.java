@@ -67,12 +67,19 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
 
         Message message = Message.obtain();
         message.arg1 = SessionHandler.INIT;
-        sessionHandler.sendMessage(message);
+        sendMessageToSessionHandler(message);
     }
 
     @Override
     public void init(AdjustConfig adjustConfig) {
         this.adjustConfig = adjustConfig;
+    }
+
+    public void teardown() {
+        this.enabled = true;
+
+        this.packageHandler.teardown();
+        this.attributionHandler.teardown();
     }
 
     public static ActivityHandler getInstance(AdjustConfig adjustConfig) {
@@ -113,14 +120,14 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     public void trackSubsessionStart() {
         Message message = Message.obtain();
         message.arg1 = SessionHandler.START;
-        sessionHandler.sendMessage(message);
+        sendMessageToSessionHandler(message);
     }
 
     @Override
     public void trackSubsessionEnd() {
         Message message = Message.obtain();
         message.arg1 = SessionHandler.END;
-        sessionHandler.sendMessage(message);
+        sendMessageToSessionHandler(message);
     }
 
     @Override
@@ -132,7 +139,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         Message message = Message.obtain();
         message.arg1 = SessionHandler.EVENT;
         message.obj = event;
-        sessionHandler.sendMessage(message);
+        sendMessageToSessionHandler(message);
     }
 
     @Override
@@ -144,7 +151,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         Message message = Message.obtain();
         message.arg1 = SessionHandler.FINISH_TRACKING;
         message.obj = jsonResponse;
-        sessionHandler.sendMessage(message);
+        sendMessageToSessionHandler(message);
     }
 
     @Override
@@ -237,7 +244,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         message.arg1 = SessionHandler.DEEP_LINK;
         UrlClickTime urlClickTime = new UrlClickTime(url, clickTime);
         message.obj = urlClickTime;
-        sessionHandler.sendMessage(message);
+        sendMessageToSessionHandler(message);
     }
 
     @Override
@@ -294,7 +301,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         message.arg1 = SessionHandler.SEND_REFERRER;
         ReferrerClickTime referrerClickTime = new ReferrerClickTime(referrer, clickTime);
         message.obj = referrerClickTime;
-        sessionHandler.sendMessage(message);
+        sendMessageToSessionHandler(message);
     }
 
     private class UrlClickTime {
@@ -320,13 +327,13 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     private void updateStatus() {
         Message message = Message.obtain();
         message.arg1 = SessionHandler.UPDATE_STATUS;
-        sessionHandler.sendMessage(message);
+        sendMessageToSessionHandler(message);
     }
 
     private void timerFired() {
         Message message = Message.obtain();
         message.arg1 = SessionHandler.TIMER_FIRED;
-        sessionHandler.sendMessage(message);
+        sendMessageToSessionHandler(message);
     }
 
     private static final class SessionHandler extends Handler {
@@ -814,5 +821,13 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
 
     private boolean paused() {
         return offline || !isEnabled();
+    }
+
+    private void sendMessageToSessionHandler(Message message) {
+        if (this.enabled) {
+            sessionHandler.sendMessage(message);
+        } else {
+            this.logger.error("Message not sent, activity handler is disabled");
+        }
     }
 }
