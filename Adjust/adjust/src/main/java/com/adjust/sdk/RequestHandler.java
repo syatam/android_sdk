@@ -40,10 +40,14 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
     private HttpClient httpClient;
     private ILogger logger;
 
+    private boolean enabled;
+
     public RequestHandler(IPackageHandler packageHandler) {
         super(Constants.LOGTAG, MIN_PRIORITY);
         setDaemon(true);
         start();
+
+        this.enabled = true;
 
         this.logger = AdjustFactory.getLogger();
         this.internalHandler = new InternalHandler(getLooper(), this);
@@ -51,7 +55,7 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
 
         Message message = Message.obtain();
         message.arg1 = InternalHandler.INIT;
-        internalHandler.sendMessage(message);
+        sendMessageToInternalHandler(message);
     }
 
     @Override
@@ -60,11 +64,16 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
     }
 
     @Override
+    public void teardown() {
+        this.enabled = false;
+    }
+
+    @Override
     public void sendPackage(ActivityPackage pack) {
         Message message = Message.obtain();
         message.arg1 = InternalHandler.SEND;
         message.obj = pack;
-        internalHandler.sendMessage(message);
+        sendMessageToInternalHandler(message);
     }
 
     private static final class InternalHandler extends Handler {
@@ -183,5 +192,13 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
         request.setEntity(entity);
 
         return request;
+    }
+
+    private void sendMessageToInternalHandler(Message message) {
+        if (this.enabled) {
+            internalHandler.sendMessage(message);
+        } else {
+            this.logger.error("Message not sent, request handler is disabled");
+        }
     }
 }
