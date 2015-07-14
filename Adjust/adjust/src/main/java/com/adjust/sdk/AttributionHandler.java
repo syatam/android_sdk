@@ -35,12 +35,18 @@ public class AttributionHandler implements IAttributionHandler {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         logger = AdjustFactory.getLogger();
         httpClient = Util.getHttpClient();
-        timer = new TimerOnce(scheduler, new Runnable() {
-            @Override
-            public void run() {
-                getAttributionInternal();
-            }
-        });
+
+        if (this.scheduler != null) {
+            timer = new TimerOnce(scheduler, new Runnable() {
+                @Override
+                public void run() {
+                    getAttributionInternal();
+                }
+            });
+        } else {
+            this.logger.error("Timer not initialized, attribution handler is disabled");
+        }
+
         init(activityHandler, attributionPackage, startPaused, hasListener);
     }
 
@@ -56,18 +62,33 @@ public class AttributionHandler implements IAttributionHandler {
     }
 
     @Override
+    public void teardown() {
+        if (this.timer != null) {
+            this.timer.teardown();
+            this.timer = null;
+        }
+
+        this.scheduler.shutdown();
+        this.scheduler = null;
+    }
+
+    @Override
     public void getAttribution() {
         getAttribution(0);
     }
 
     @Override
     public void checkAttribution(final JSONObject jsonResponse) {
-        scheduler.submit(new Runnable() {
-            @Override
-            public void run() {
-                checkAttributionInternal(jsonResponse);
-            }
-        });
+        if (this.scheduler != null) {
+            scheduler.submit(new Runnable() {
+                @Override
+                public void run() {
+                    checkAttributionInternal(jsonResponse);
+                }
+            });
+        } else {
+            this.logger.error("Unable to check attribution, attribution handler is disabled");
+        }
     }
 
     @Override
@@ -81,17 +102,21 @@ public class AttributionHandler implements IAttributionHandler {
     }
 
     private void getAttribution(long delayInMilliseconds) {
-        // don't reset if new time is shorter than last one
-        if (timer.getFireIn() > delayInMilliseconds) {
-            return;
-        }
+        if (this.timer != null) {
+            // don't reset if new time is shorter than last one
+            if (timer.getFireIn() > delayInMilliseconds) {
+                return;
+            }
 
-        if (delayInMilliseconds != 0) {
-            logger.debug("Waiting to query attribution in %d milliseconds", delayInMilliseconds);
-        }
+            if (delayInMilliseconds != 0) {
+                logger.debug("Waiting to query attribution in %d milliseconds", delayInMilliseconds);
+            }
 
-        // set the new time the timer will fire in
-        timer.startIn(delayInMilliseconds);
+            // set the new time the timer will fire in
+            timer.startIn(delayInMilliseconds);
+        } else {
+            this.logger.error("Not firing timer, attribution handler is disabled");
+        }
     }
 
     private void checkAttributionInternal(JSONObject jsonResponse) {
