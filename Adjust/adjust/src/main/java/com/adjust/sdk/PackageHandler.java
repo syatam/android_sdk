@@ -33,6 +33,7 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
     private List<ActivityPackage> packageQueue;
     private AtomicBoolean isSending;
     private boolean paused;
+    private boolean enabled;
     private Context context;
     private ILogger logger;
 
@@ -42,6 +43,9 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
         super(Constants.LOGTAG, MIN_PRIORITY);
         setDaemon(true);
         start();
+
+        this.enabled = true;
+
         this.internalHandler = new InternalHandler(getLooper(), this);
         this.logger = AdjustFactory.getLogger();
 
@@ -49,7 +53,7 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
 
         Message message = Message.obtain();
         message.arg1 = InternalHandler.INIT;
-        internalHandler.sendMessage(message);
+        sendMessageToInternalHandler(message);
     }
 
     @Override
@@ -59,13 +63,20 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
         this.paused = startPaused;
     }
 
+    @Override
+    public void teardown() {
+        requestHandler.teardown();
+
+        this.enabled = false;
+    }
+
     // add a package to the queue
     @Override
     public void addPackage(ActivityPackage pack) {
         Message message = Message.obtain();
         message.arg1 = InternalHandler.ADD;
         message.obj = pack;
-        internalHandler.sendMessage(message);
+        sendMessageToInternalHandler(message);
     }
 
     // try to send the oldest package
@@ -73,7 +84,7 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
     public void sendFirstPackage() {
         Message message = Message.obtain();
         message.arg1 = InternalHandler.SEND_FIRST;
-        internalHandler.sendMessage(message);
+        sendMessageToInternalHandler(message);
     }
 
     // remove oldest package and try to send the next one
@@ -82,7 +93,7 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
     public void sendNextPackage() {
         Message message = Message.obtain();
         message.arg1 = InternalHandler.SEND_NEXT;
-        internalHandler.sendMessage(message);
+        sendMessageToInternalHandler(message);
     }
 
     // close the package to retry in the future (after temporary failure)
@@ -212,5 +223,13 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
 
     public static Boolean deletePackageQueue(Context context) {
         return context.deleteFile(PACKAGE_QUEUE_FILENAME);
+    }
+
+    private void sendMessageToInternalHandler(Message message) {
+        if (this.enabled) {
+            internalHandler.sendMessage(message);
+        } else {
+            this.logger.error("Message not sent, package handler is disabled");
+        }
     }
 }
