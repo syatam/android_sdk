@@ -48,10 +48,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Partner parameters"
-        android:id="@+id/Attribution"
+        android:id="@+id/btnPartnerParameters"
         android:layout_below="@+id/btnCallbackParameters"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:onClick="onTrackEventWithPartnerClick" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Teardown Adjust instance"
+        android:id="@+id/btnTeardown"
+        android:layout_below="@+id/btnPartnerParameters"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:onClick="onTeardownClick" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reinitialize Adjust instance"
+        android:id="@+id/btnReinitialize"
+        android:layout_below="@+id/btnTeardown"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:onClick="onReinitializeClick" />
 
 </RelativeLayout>

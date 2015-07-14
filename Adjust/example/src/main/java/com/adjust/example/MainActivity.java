@@ -4,12 +4,17 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.adjust.sdk.Adjust;
+import com.adjust.sdk.AdjustAttribution;
+import com.adjust.sdk.AdjustConfig;
 import com.adjust.sdk.AdjustEvent;
+import com.adjust.sdk.LogLevel;
+import com.adjust.sdk.OnAttributionChangedListener;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -59,13 +64,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onTrackSimpleEventClick(View v) {
-        AdjustEvent event = new AdjustEvent("{eventToken}");
+        AdjustEvent event = new AdjustEvent("uqg17r");
 
         Adjust.trackEvent(event);
     }
 
     public void onTrackRevenueEventClick(View v) {
-        AdjustEvent event = new AdjustEvent("{eventToken}");
+        AdjustEvent event = new AdjustEvent("71iltz");
 
         // add revenue 1 cent of an euro
         event.setRevenue(0.01, "EUR");
@@ -74,7 +79,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onTrackEventWithCallbackClick(View v) {
-        AdjustEvent event = new AdjustEvent("{eventToken}");
+        AdjustEvent event = new AdjustEvent("1ziip1");
 
         // add callback parameters to this parameter
         event.addCallbackParameter("key", "value");
@@ -83,11 +88,34 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onTrackEventWithPartnerClick(View v) {
-        AdjustEvent event = new AdjustEvent("{eventToken}");
+        AdjustEvent event = new AdjustEvent("9s4lqn");
 
         // add partner parameters to this parameter
         event.addPartnerParameter("foo", "bar");
 
         Adjust.trackEvent(event);
+    }
+
+    public void onTeardownClick(View v) {
+        Adjust.teardown();
+    }
+
+    public void onReinitializeClick(View v) {
+        String appToken = "rb4g27fje5ej";
+        String environment = AdjustConfig.ENVIRONMENT_SANDBOX;
+        AdjustConfig config = new AdjustConfig(this, appToken, environment);
+
+        // change the log level
+        config.setLogLevel(LogLevel.VERBOSE);
+
+        // set attribution delegate
+        config.setOnAttributionChangedListener(new OnAttributionChangedListener() {
+            @Override
+            public void onAttributionChanged(AdjustAttribution attribution) {
+                Log.d("example", "attribution: " + attribution.toString());
+            }
+        });
+
+        Adjust.onCreate(config);
     }
 }
