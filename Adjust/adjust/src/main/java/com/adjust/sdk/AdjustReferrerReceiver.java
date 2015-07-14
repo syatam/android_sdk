@@ -29,7 +29,6 @@ public class AdjustReferrerReceiver extends BroadcastReceiver {
             referrer = MALFORMED;
         }
 
-        AdjustInstance adjust = Adjust.getDefaultInstance();
-        adjust.sendReferrer(referrer);
+        Adjust.sendReferrer(referrer);
     }
 }
