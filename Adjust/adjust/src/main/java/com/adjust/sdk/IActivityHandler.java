@@ -10,6 +10,8 @@ import org.json.JSONObject;
 public interface IActivityHandler {
     public void init(AdjustConfig config);
 
+    public void teardown();
+
     public void trackSubsessionStart();
 
     public void trackSubsessionEnd();

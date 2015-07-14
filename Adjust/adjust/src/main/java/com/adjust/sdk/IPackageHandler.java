@@ -7,6 +7,8 @@ import org.json.JSONObject;
 public interface IPackageHandler {
     public void init(IActivityHandler activityHandler, Context context, boolean startPaused);
 
+    public void teardown();
+
     public void addPackage(ActivityPackage pack);
 
     public void sendFirstPackage();

@@ -11,6 +11,8 @@ public interface IAttributionHandler {
                      boolean startPaused,
                      boolean hasListener);
 
+    public void teardown();
+
     public void getAttribution();
 
     public void checkAttribution(JSONObject jsonResponse);
