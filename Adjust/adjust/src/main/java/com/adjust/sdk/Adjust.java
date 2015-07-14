@@ -23,56 +23,89 @@ public class Adjust {
     private Adjust() {
     }
 
-    public static synchronized AdjustInstance getDefaultInstance() {
+    public static synchronized void getDefaultInstance() {
         if (defaultInstance == null) {
             defaultInstance = new AdjustInstance();
         }
-        return defaultInstance;
     }
 
-    public static void onCreate(AdjustConfig adjustConfig) {
-        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        adjustInstance.onCreate(adjustConfig);
+    public static synchronized void onCreate(AdjustConfig adjustConfig) {
+        Adjust.getDefaultInstance();
+
+        if (defaultInstance != null) {
+            defaultInstance.onCreate(adjustConfig);
+        } else {
+            AdjustFactory.getLogger().error("Adjust not initialized correctly");
+        }
     }
 
-    public static void trackEvent(AdjustEvent event) {
-        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        adjustInstance.trackEvent(event);
+    public static synchronized void trackEvent(AdjustEvent event) {
+        if (defaultInstance != null) {
+            defaultInstance.trackEvent(event);
+        } else {
+            AdjustFactory.getLogger().error("Adjust not initialized correctly");
+        }
     }
 
-    public static void onResume() {
-        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        adjustInstance.onResume();
+    public static synchronized void onResume() {
+        if (defaultInstance != null) {
+            defaultInstance.onResume();
+        } else {
+            AdjustFactory.getLogger().error("Adjust not initialized correctly");
+        }
     }
 
-    public static void onPause() {
-        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        adjustInstance.onPause();
+    public static synchronized void onPause() {
+        if (defaultInstance != null) {
+            defaultInstance.onPause();
+        } else {
+            AdjustFactory.getLogger().error("Adjust not initialized correctly");
+        }
     }
 
-    public static void setEnabled(boolean enabled) {
-        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        adjustInstance.setEnabled(enabled);
+    public static synchronized void setEnabled(boolean enabled) {
+        if (defaultInstance != null) {
+            defaultInstance.setEnabled(enabled);
+        } else {
+            AdjustFactory.getLogger().error("Adjust not initialized correctly");
+        }
     }
 
-    public static boolean isEnabled() {
-        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        return adjustInstance.isEnabled();
+    public static synchronized boolean isEnabled() {
+        if (defaultInstance != null) {
+            return defaultInstance.isEnabled();
+        } else {
+            AdjustFactory.getLogger().error("Adjust not initialized correctly");
+            return false;
+        }
     }
 
-    public static void appWillOpenUrl(Uri url) {
-        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        adjustInstance.appWillOpenUrl(url);
+    public static synchronized void appWillOpenUrl(Uri url) {
+        if (defaultInstance != null) {
+            defaultInstance.appWillOpenUrl(url);
+        } else {
+            AdjustFactory.getLogger().error("Adjust not initialized correctly");
+        }
     }
 
-    public static void setReferrer(String referrer) {
-        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        adjustInstance.sendReferrer(referrer);
+    public static synchronized void sendReferrer(String referrer) {
+        if (defaultInstance != null) {
+            defaultInstance.sendReferrer(referrer);
+        } else {
+            AdjustFactory.getLogger().error("Adjust not initialized correctly");
+        }
     }
 
-    public static void setOfflineMode(boolean enabled) {
-        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        adjustInstance.setOfflineMode(enabled);
+    public static synchronized void setOfflineMode(boolean enabled) {
+        if (defaultInstance != null) {
+            defaultInstance.setOfflineMode(enabled);
+        } else {
+            AdjustFactory.getLogger().error("Adjust not initialized correctly");
+        }
+    }
+
+    public static synchronized void teardown() {
+        defaultInstance = null;
     }
 }
 
