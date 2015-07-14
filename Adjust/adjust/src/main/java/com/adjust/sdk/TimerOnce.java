@@ -34,4 +34,9 @@ public class TimerOnce {
         }
         return waitingTask.getDelay(TimeUnit.MILLISECONDS);
     }
+
+    public void teardown() {
+        waitingTask.cancel(true);
+        waitingTask = null;
+    }
 }
