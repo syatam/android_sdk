@@ -77,6 +77,7 @@ public class AdjustInstance {
 
     public void teardown() {
         this.activityHandler.teardown();
+        this.activityHandler = null;
     }
 
     private boolean checkActivityHandler() {

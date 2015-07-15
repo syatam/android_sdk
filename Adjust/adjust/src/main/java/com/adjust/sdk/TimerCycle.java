@@ -44,4 +44,11 @@ public class TimerCycle {
 
         isPaused = true;
     }
+
+    public void teardown() {
+        if (waitingTask != null) {
+            waitingTask.cancel(true);
+            waitingTask = null;
+        }
+    }
 }

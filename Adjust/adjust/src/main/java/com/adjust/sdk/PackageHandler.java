@@ -27,7 +27,7 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
     private static final String PACKAGE_QUEUE_FILENAME = "AdjustIoPackageQueue";
     private static final String PACKAGE_QUEUE_NAME = "Package queue";
 
-    private final InternalHandler internalHandler;
+    private InternalHandler internalHandler;
     private IRequestHandler requestHandler;
     private IActivityHandler activityHandler;
     private List<ActivityPackage> packageQueue;
@@ -65,9 +65,18 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
 
     @Override
     public void teardown() {
-        requestHandler.teardown();
+        this.requestHandler.teardown();
+        this.requestHandler = null;
 
         this.enabled = false;
+
+        this.internalHandler.removeCallbacksAndMessages(null);
+        this.internalHandler = null;
+
+        this.activityHandler = null;
+        this.logger = null;
+
+        quit();
     }
 
     // add a package to the queue

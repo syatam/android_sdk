@@ -70,6 +70,14 @@ public class AttributionHandler implements IAttributionHandler {
 
         this.scheduler.shutdown();
         this.scheduler = null;
+
+        this.activityHandler = null;
+        this.logger = null;
+        this.attributionPackage = null;
+
+        this.httpClient.getConnectionManager().closeExpiredConnections();
+        this.httpClient.getConnectionManager().shutdown();
+        this.httpClient = null;
     }
 
     @Override

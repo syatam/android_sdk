@@ -66,6 +66,19 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
     @Override
     public void teardown() {
         this.enabled = false;
+
+        this.internalHandler.removeCallbacksAndMessages(null);
+        this.internalHandler = null;
+
+        this.packageHandler = null;
+
+        this.httpClient.getConnectionManager().closeExpiredConnections();
+        this.httpClient.getConnectionManager().shutdown();
+        this.httpClient = null;
+
+        this.logger = null;
+
+        quit();
     }
 
     @Override

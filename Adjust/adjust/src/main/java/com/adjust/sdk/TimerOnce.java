@@ -36,7 +36,9 @@ public class TimerOnce {
     }
 
     public void teardown() {
-        waitingTask.cancel(true);
-        waitingTask = null;
+        if (waitingTask != null) {
+            waitingTask.cancel(true);
+            waitingTask = null;
+        }
     }
 }

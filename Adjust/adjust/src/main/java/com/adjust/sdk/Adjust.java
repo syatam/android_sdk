@@ -105,7 +105,10 @@ public class Adjust {
     }
 
     public static synchronized void teardown() {
-        defaultInstance = null;
+        if (defaultInstance != null) {
+            defaultInstance.teardown();
+            defaultInstance = null;
+        }
     }
 }
 

@@ -78,8 +78,25 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     public void teardown() {
         this.enabled = true;
 
+        if (this.timer != null) {
+            this.timer.teardown();
+            this.timer = null;
+        }
+
         this.packageHandler.teardown();
         this.attributionHandler.teardown();
+        this.packageHandler = null;
+        this.attributionHandler = null;
+
+        this.sessionHandler.removeCallbacksAndMessages(null);
+        this.sessionHandler = null;
+
+        this.logger = null;
+        this.deviceInfo = null;
+        this.adjustConfig = null;
+        this.activityState = null;
+
+        quit();
     }
 
     public static ActivityHandler getInstance(AdjustConfig adjustConfig) {
