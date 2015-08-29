@@ -10,7 +10,12 @@ public class YourApplicationClass extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        // configure Adjust
+        
+        // Initialize Adobe SDK
+        Config.setContext(this.getApplicationContext());
+        Config.setDebugLogging(true);
+        
+        // Configure Adjust
         String appToken = "{YourAppToken}";
         String environment = AdjustConfig.ENVIRONMENT_SANDBOX;
         AdjustConfig config = new AdjustConfig(this, appToken, environment);
@@ -18,19 +23,14 @@ public class YourApplicationClass extends Application {
         config.setOnAttributionChangedListener(new OnAttributionChangedListener() {
             @Override
             public void onAttributionChanged(Attribution attribution) {
-                Map<String, Object> dataAdjust = new HashMap<String, Object>();
+                Map<String,Object> dataAdjust = new HashMap<String,Object>();
                 
-                // Do not change the key "Adjust Network". This key is being used in the Data Connector Processing Rule
-                dataAdjust.put("Adjust Network", attribution.network);
-                // Do not change the key "Adjust Campaign". This key is being used in the Data Connector Processing Rule
-                dataAdjust.put("Adjust Campaign", attribution.campaign);
-                // Do not change the key "Adjust Adgroup". This key is being used in the Data Connector Processing Rule
-                dataAdjust.put("Adjust Adgroup", attribution.adgroup);
-                // Do not change the key "Adjust Creative". This key is being used in the Data Connector Processing Rule
-                dataAdjust.put("Adjust Creative", attribution.creative);
+                dataAdjust.put("Adjust Network", adjustAttribution.network); // Do not change the key "Adjust Network". This key is being used in the Data Connector Processing Rule
+                dataAdjust.put("Adjust Campaign", adjustAttribution.campaign); // Do not change the key "Adjust Campaign". This key is being used in the Data Connector Processing Rule
+                dataAdjust.put("Adjust Adgroup", adjustAttribution.adgroup); // Do not change the key "Adjust Adgroup". This key is being used in the Data Connector Processing Rule
+                dataAdjust.put("Adjust Creative", adjustAttribution.creative); // Do not change the key "Adjust Creative". This key is being used in the Data Connector Processing Rule
 
-                // Send Data to Adobe using Track Action
-                Analytics.trackAction("Adjust Integration Data", dataAdjust);
+                Analytics.trackAction("Adjust Campaign Data Received",dataAdjust); // Send Data to Adobe using Track Action
             }
         });
 
