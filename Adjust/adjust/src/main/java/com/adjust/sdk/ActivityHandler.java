@@ -329,8 +329,8 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         sessionHandler.sendMessage(message);
     }
 
-    public void launchDeeplinkMain(String deeplink) {
-        if (deeplink == null) return;
+    public boolean launchDeeplinkMain(String deeplink) {
+        if (deeplink == null) return false;
 
         Uri location = Uri.parse(deeplink);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
@@ -344,13 +344,18 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         // Start an activity if it's safe
         if (!isIntentSafe) {
             logger.error("Unable to open deep link (%s)", deeplink);
-            return;
+            return false;
         }
 
         logger.info("Open deep link (%s)", deeplink);
-        adjustConfig.context.startActivity(mapIntent);
+        try {
+            adjustConfig.context.startActivity(mapIntent);
+        } catch (Exception e) {
+            logger.error("Error opening deep link (%s) (%s)", deeplink, e.getMessage());
+            return false;
+        }
+        return true;
     }
-
 
     private static final class SessionHandler extends Handler {
         private static final int BASE_ADDRESS = 72630;

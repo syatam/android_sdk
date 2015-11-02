@@ -34,6 +34,6 @@ public interface IActivityHandler {
 
     public ActivityPackage getAttributionPackage();
 
-    public void launchDeeplinkMain(String deeplink);
+    public boolean launchDeeplinkMain(String deeplink);
 
 }

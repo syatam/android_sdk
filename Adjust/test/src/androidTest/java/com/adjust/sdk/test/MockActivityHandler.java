@@ -93,8 +93,9 @@ public class MockActivityHandler implements IActivityHandler {
     }
 
     @Override
-    public void launchDeeplinkMain(String deeplink) {
+    public boolean launchDeeplinkMain(String deeplink) {
         testLogger.test(prefix + "launchDeeplinkMain, " + deeplink);
+        return false;
     }
 
 }
