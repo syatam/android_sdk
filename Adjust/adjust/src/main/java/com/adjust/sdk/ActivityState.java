@@ -50,6 +50,7 @@ public class ActivityState implements Serializable, Cloneable {
     protected long lastActivity;    // all times in milliseconds since 1970
 
     protected long lastInterval;
+    protected String sessionDeeplink;
 
     protected ActivityState() {
         logger = AdjustFactory.getLogger();
@@ -65,6 +66,7 @@ public class ActivityState implements Serializable, Cloneable {
         timeSpent = -1; // this information will be collected and attached to the next session
         lastActivity = -1;
         lastInterval = -1;
+        sessionDeeplink = null;
     }
 
     protected void resetSessionAttributes(long now) {
@@ -78,10 +80,10 @@ public class ActivityState implements Serializable, Cloneable {
     @Override
     public String toString() {
         return String.format(Locale.US,
-                "ec:%d sc:%d ssc:%d sl:%.1f ts:%.1f la:%s uuid:%s",
+                "ec:%d sc:%d ssc:%d sl:%.1f ts:%.1f la:%s uuid:%s dl:%s",
                 eventCount, sessionCount, subsessionCount,
                 sessionLength / 1000.0, timeSpent / 1000.0,
-                stamp(lastActivity), uuid);
+                stamp(lastActivity), uuid, sessionDeeplink);
     }
 
     public ActivityState shallowCopy() {
@@ -108,6 +110,7 @@ public class ActivityState implements Serializable, Cloneable {
         if (!Util.equalLong(sessionLength, otherActivityState.sessionLength))      return false;
         if (!Util.equalLong(timeSpent, otherActivityState.timeSpent))          return false;
         if (!Util.equalLong(lastInterval, otherActivityState.lastInterval))       return false;
+        if (!Util.equalString(sessionDeeplink, otherActivityState.sessionDeeplink))       return false;
         return true;
     }
 
@@ -123,6 +126,7 @@ public class ActivityState implements Serializable, Cloneable {
         hashCode = 37 * hashCode + Util.hashLong(sessionLength);
         hashCode = 37 * hashCode + Util.hashLong(timeSpent);
         hashCode = 37 * hashCode + Util.hashLong(lastInterval);
+        hashCode = 37 * hashCode + Util.hashString(sessionDeeplink);
         return hashCode;
     }
 
@@ -142,6 +146,7 @@ public class ActivityState implements Serializable, Cloneable {
         uuid = Util.readStringField(fields, "uuid", null);
         enabled = Util.readBooleanField(fields, "enabled", true);
         askingAttribution = Util.readBooleanField(fields, "askingAttribution", false);
+        sessionDeeplink = Util.readStringField(fields, "sessionDeeplink", null);
 
         // create UUID for migrating devices
         if (uuid == null) {
