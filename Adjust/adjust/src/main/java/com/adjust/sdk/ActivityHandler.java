@@ -240,7 +240,15 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         sessionHandler.sendMessage(message);
     }
 
+    private class UrlClickTime {
+        Uri url;
+        long clickTime;
 
+        UrlClickTime(Uri url, long clickTime) {
+            this.url = url;
+            this.clickTime = clickTime;
+        }
+    }
 
     @Override
     public void setAskingAttribution(boolean askingAttribution) {
@@ -267,16 +275,6 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         sessionHandler.sendMessage(message);
     }
 
-    private class UrlClickTime {
-        Uri url;
-        long clickTime;
-
-        UrlClickTime(Uri url, long clickTime) {
-            this.url = url;
-            this.clickTime = clickTime;
-        }
-    }
-
     private class ReferrerClickTime {
         String referrer;
         long clickTime;
@@ -287,18 +285,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         }
     }
 
-    private void updateStatus() {
-        Message message = Message.obtain();
-        message.arg1 = SessionHandler.UPDATE_STATUS;
-        sessionHandler.sendMessage(message);
-    }
-
-    private void timerFired() {
-        Message message = Message.obtain();
-        message.arg1 = SessionHandler.TIMER_FIRED;
-        sessionHandler.sendMessage(message);
-    }
-
+    @Override
     public boolean launchDeeplinkMain(String deeplink) {
         if (deeplink == null) return false;
 
@@ -344,6 +331,18 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
             this.attribution = attribution;
             this.deeplink = deeplink;
         }
+    }
+
+    private void updateStatus() {
+        Message message = Message.obtain();
+        message.arg1 = SessionHandler.UPDATE_STATUS;
+        sessionHandler.sendMessage(message);
+    }
+
+    private void timerFired() {
+        Message message = Message.obtain();
+        message.arg1 = SessionHandler.TIMER_FIRED;
+        sessionHandler.sendMessage(message);
     }
 
     private static final class SessionHandler extends Handler {
