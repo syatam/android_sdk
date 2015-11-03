@@ -106,7 +106,7 @@ public class AttributionHandler implements IAttributionHandler {
 
         // without ask_in attribute
         if (timerMilliseconds < 0) {
-            activityHandler.tryUpdateAttribution(attribution, attributionDeeplink);
+            activityHandler.updateAttribution(attribution, attributionDeeplink);
 
             activityHandler.setAskingAttribution(false);
 

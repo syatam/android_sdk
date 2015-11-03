@@ -240,55 +240,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         sessionHandler.sendMessage(message);
     }
 
-    @Override
-    public boolean tryUpdateAttribution(AdjustAttribution attribution, String attributionDeeplink) {
-        // if there is no attribution exit
-        if (attribution == null) return false;
 
-        boolean isNewAttribution = !attribution.equals(this.attribution);
-        boolean isNewDeeplink = attributionDeeplink != null
-                && !Util.equalString(attributionDeeplink, activityState.sessionDeeplink);
-
-        // as long as there is any attribution, remove previous session deeplink
-        if (activityState.sessionDeeplink != null) {
-            activityState.sessionDeeplink = null;
-            writeActivityState();
-        }
-
-        // with new attribution and new deeplink => launch the new deeplink
-        if (isNewAttribution && isNewDeeplink) {
-            launchDeeplinkMain(attributionDeeplink);
-        }
-
-        // exit if there is no new attribution
-        if (!isNewAttribution) {
-            return false;
-        }
-
-        // save the new attribution and call the attribution changed delegate
-        saveAttribution(attribution);
-        launchAttributionListener();
-        return true;
-    }
-
-    private void saveAttribution(AdjustAttribution attribution) {
-        this.attribution = attribution;
-        writeAttribution();
-    }
-
-    private void launchAttributionListener() {
-        if (adjustConfig.onAttributionChangedListener == null) {
-            return;
-        }
-        Handler handler = new Handler(adjustConfig.context.getMainLooper());
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                adjustConfig.onAttributionChangedListener.onAttributionChanged(attribution);
-            }
-        };
-        handler.post(runnable);
-    }
 
     @Override
     public void setAskingAttribution(boolean askingAttribution) {
@@ -375,6 +327,25 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         return true;
     }
 
+    @Override
+    public void updateAttribution(AdjustAttribution attribution, String deeplink) {
+        Message message = Message.obtain();
+        message.arg1 = SessionHandler.UPDATE_ATTRIBUTION;
+        UpdatedAttribution updatedAttribution = new UpdatedAttribution(attribution, deeplink);
+        message.obj = updatedAttribution;
+        sessionHandler.sendMessage(message);
+    }
+
+    private class UpdatedAttribution {
+        AdjustAttribution attribution;
+        String deeplink;
+
+        UpdatedAttribution(AdjustAttribution attribution, String deeplink) {
+            this.attribution = attribution;
+            this.deeplink = deeplink;
+        }
+    }
+
     private static final class SessionHandler extends Handler {
         private static final int BASE_ADDRESS = 72630;
         private static final int INIT = BASE_ADDRESS + 1;
@@ -386,6 +357,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         private static final int SEND_REFERRER = BASE_ADDRESS + 7;
         private static final int UPDATE_STATUS = BASE_ADDRESS + 8;
         private static final int TIMER_FIRED = BASE_ADDRESS + 9;
+        private static final int UPDATE_ATTRIBUTION = BASE_ADDRESS + 10;
 
         private final WeakReference<ActivityHandler> sessionHandlerReference;
 
@@ -434,6 +406,10 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
                     break;
                 case TIMER_FIRED:
                     sessionHandler.timerFiredInternal();
+                    break;
+                case UPDATE_ATTRIBUTION:
+                    UpdatedAttribution updatedAttribution = (UpdatedAttribution) message.obj;
+                    sessionHandler.updateAttributionInternal(updatedAttribution.attribution, updatedAttribution.deeplink);
                     break;
             }
         }
@@ -807,6 +783,53 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         if (updateActivityState(System.currentTimeMillis())) {
             writeActivityState();
         }
+    }
+
+    private void updateAttributionInternal(AdjustAttribution attribution, String attributionDeeplink) {
+        // if there is no attribution exit
+        if (attribution == null) return;
+
+        boolean isNewAttribution = !attribution.equals(this.attribution);
+        boolean isNewDeeplink = !Util.equalString(attributionDeeplink, activityState.sessionDeeplink);
+
+        // as long as there is any attribution, remove previous session deeplink
+        if (activityState.sessionDeeplink != null) {
+            activityState.sessionDeeplink = null;
+            writeActivityState();
+        }
+
+        // with new attribution and new deeplink => launch the new deeplink
+        if (isNewAttribution && isNewDeeplink) {
+            launchDeeplinkMain(attributionDeeplink);
+        }
+
+        // exit if there is no new attribution
+        if (!isNewAttribution) {
+            return;
+        }
+
+        // save the new attribution and call the attribution changed delegate
+        saveAttribution(attribution);
+        launchAttributionListener();
+    }
+
+    private void saveAttribution(AdjustAttribution attribution) {
+        this.attribution = attribution;
+        writeAttribution();
+    }
+
+    private void launchAttributionListener() {
+        if (adjustConfig.onAttributionChangedListener == null) {
+            return;
+        }
+        Handler handler = new Handler(adjustConfig.context.getMainLooper());
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                adjustConfig.onAttributionChangedListener.onAttributionChanged(attribution);
+            }
+        };
+        handler.post(runnable);
     }
 
     private void readActivityState() {
