@@ -98,18 +98,15 @@ public class AttributionHandler implements IAttributionHandler {
         if (jsonResponse == null) return;
 
         JSONObject attributionJson = jsonResponse.optJSONObject("attribution");
+        String attributionDeeplink = attributionJson.optString("deeplink", null);
 
-        if (attributionJson != null) {
-            String deeplink = attributionJson.optString("deeplink", null);
-            activityHandler.launchDeeplinkMain(deeplink);
-        }
         AdjustAttribution attribution = AdjustAttribution.fromJson(attributionJson);
 
         long timerMilliseconds = jsonResponse.optLong("ask_in", -1);
 
         // without ask_in attribute
         if (timerMilliseconds < 0) {
-            activityHandler.tryUpdateAttribution(attribution);
+            activityHandler.tryUpdateAttribution(attribution, attributionDeeplink);
 
             activityHandler.setAskingAttribution(false);
 

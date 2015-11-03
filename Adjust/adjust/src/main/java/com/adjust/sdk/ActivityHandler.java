@@ -241,13 +241,31 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     }
 
     @Override
-    public boolean tryUpdateAttribution(AdjustAttribution attribution) {
+    public boolean tryUpdateAttribution(AdjustAttribution attribution, String attributionDeeplink) {
+        // if there is no attribution exit
         if (attribution == null) return false;
 
-        if (attribution.equals(this.attribution)) {
+        boolean isNewAttribution = !attribution.equals(this.attribution);
+        boolean isNewDeeplink = attributionDeeplink != null
+                && !Util.equalString(attributionDeeplink, activityState.sessionDeeplink);
+
+        // as long as there is any attribution, remove previous session deeplink
+        if (activityState.sessionDeeplink != null) {
+            activityState.sessionDeeplink = null;
+            writeActivityState();
+        }
+
+        // with new attribution and new deeplink => launch the new deeplink
+        if (isNewAttribution && isNewDeeplink) {
+            launchDeeplinkMain(attributionDeeplink);
+        }
+
+        // exit if there is no new attribution
+        if (!isNewAttribution) {
             return false;
         }
 
+        // save the new attribution and call the attribution changed delegate
         saveAttribution(attribution);
         launchAttributionListener();
         return true;
