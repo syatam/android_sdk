@@ -1,9 +1,14 @@
 package com.adjust.example;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +17,10 @@ import android.widget.Toast;
 
 import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustEvent;
+
+import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class MainActivity extends ActionBarActivity {
     private static final String EVENT_TOKEN_SIMPLE      = "{YourEventToken}";
@@ -36,6 +45,48 @@ public class MainActivity extends ActionBarActivity {
         } else {
             btnEnableDisableSDK.setText(R.string.txt_enable_sdk);
         }
+
+        String versionNo = BuildConfig.VERSION_NAME;
+        Log.d("Adjust", String.format(Locale.US, "BuildConfig.VERSION_NAME %s", versionNo));
+
+        Log.d("Adjust", String.format(Locale.US, "Build.VERSION.SDK_INT %d", Build.VERSION.SDK_INT));
+
+        Log.d("Adjust", String.format(Locale.US, "Build.VERSION.RELEASE %s", Build.VERSION.RELEASE));
+
+        Log.d("Adjust", String.format(Locale.US, "Build.VERSION.INCREMENTAL %s", Build.VERSION.INCREMENTAL));
+
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            String version = pInfo.versionName;
+            Log.d("Adjust", String.format(Locale.US, "pInfo.versionName %s", version));
+
+            int verCode = pInfo.versionCode;
+            Log.d("Adjust", String.format(Locale.US, "pInfo.versionCode %d", verCode));
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        ScheduledExecutorService scheduler;
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        final Context thisContext = this;
+        /*
+        scheduler.submit(new Runnable() {
+            @Override
+            public void run() {
+                InstanceID instanceID = InstanceID.getInstance(thisContext);
+                String token = null;
+                try {
+                    token = instanceID.getToken("593856252581", GoogleCloudMessaging.INSTANCE_ID_SCOPE);
+                } catch (IOException e) {
+                    Log.e("Adjust", "onCreate: " + e.getLocalizedMessage());
+                    e.printStackTrace();
+                }
+
+                Log.i("Adjust", "GCM Registration Token: " + token);
+            }
+        });
+        */
     }
 
     @Override
