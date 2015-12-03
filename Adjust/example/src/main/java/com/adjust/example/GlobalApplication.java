@@ -19,7 +19,7 @@ public class GlobalApplication extends Application {
     public void onCreate() {
         super.onCreate();
         // configure Adjust
-        String appToken = "{YourAppToken}";
+        String appToken = Common.APP_TOKEN;
         String environment = AdjustConfig.ENVIRONMENT_SANDBOX;
         AdjustConfig config = new AdjustConfig(this, appToken, environment);
 
@@ -71,27 +71,22 @@ public class GlobalApplication extends Application {
 
         @Override
         public void onActivityStopped(Activity activity) {
-
         }
 
         @Override
         public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-
         }
 
         @Override
         public void onActivityDestroyed(Activity activity) {
-
         }
 
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-
         }
 
         @Override
         public void onActivityStarted(Activity activity) {
-
         }
     }
 }
