@@ -91,6 +91,23 @@ public class Reflection {
         }
     }
 
+    public static String[] getSupportedAbis() {
+        String[] supportedAbis = null;
+        try {
+            Class buildClass = forName("android.os.Build");
+
+            Field supportedAbisField = buildClass.getField("SUPPORTED_ABIS");
+
+            Object supportedAbisObject = supportedAbisField.get(null);
+
+            if (supportedAbisObject instanceof String[]) {
+                supportedAbis = (String[]) supportedAbisObject;
+            }
+        } catch (Exception e) {}
+
+        return supportedAbis;
+    }
+
     public static Class forName(String className) {
         try {
             Class classObject = Class.forName(className);
