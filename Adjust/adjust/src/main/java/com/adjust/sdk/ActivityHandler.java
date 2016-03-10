@@ -10,6 +10,7 @@
 package com.adjust.sdk;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -110,11 +111,20 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     }
 
     @Override
-    public void trackSubsessionStart() {
+    public void trackSubsessionStart(Context context) {
         Message message = Message.obtain();
         message.arg1 = SessionHandler.START;
+        message.obj = context;
         sessionHandler.sendMessage(message);
     }
+
+    private void trackSubsessionStart() {
+        Message message = Message.obtain();
+        message.arg1 = SessionHandler.START;
+        message.obj = (Context) null;
+        sessionHandler.sendMessage(message);
+    }
+
 
     @Override
     public void trackSubsessionEnd() {
@@ -131,6 +141,22 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
                     "Please check https://github.com/adjust/android_sdk#can-i-trigger-an-event-at-application-launch for more information.");
             trackSubsessionStart();
         }
+
+        /*
+        Handler handler = new Handler(adjustConfig.context.getMainLooper());
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(adjustConfig.context.getApplicationContext());
+
+                alertDialogBuilder.setTitle("setTitle");
+                alertDialogBuilder.setMessage("setMessage");
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        };
+        handler.post(runnable);
+*/
 
         Message message = Message.obtain();
         message.arg1 = SessionHandler.EVENT;
@@ -365,7 +391,8 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
                     sessionHandler.initInternal();
                     break;
                 case START:
-                    sessionHandler.startInternal();
+                    Context context = (Context) message.obj;
+                    sessionHandler.startInternal(context);
                     break;
                 case END:
                     sessionHandler.endInternal();
@@ -446,11 +473,20 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         },TIMER_START, TIMER_INTERVAL);
     }
 
-    private void startInternal() {
+    private void startInternal(Context context) {
         // it shouldn't start if it was disabled after a first session
         if (activityState != null
                 && !activityState.enabled) {
             return;
+        }
+
+        if (context != null) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+            alertDialogBuilder.setTitle("setTitle");
+            alertDialogBuilder.setMessage("setMessage");
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
         }
 
         updateHandlersStatusInternal();

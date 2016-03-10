@@ -1,5 +1,6 @@
 package com.adjust.sdk;
 
+import android.content.Context;
 import android.net.Uri;
 
 /**
@@ -32,9 +33,9 @@ public class AdjustInstance {
         activityHandler.trackEvent(event);
     }
 
-    public void onResume() {
+    public void onResume(Context context) {
         if (!checkActivityHandler()) return;
-        activityHandler.trackSubsessionStart();
+        activityHandler.trackSubsessionStart(context);
     }
 
     public void onPause() {

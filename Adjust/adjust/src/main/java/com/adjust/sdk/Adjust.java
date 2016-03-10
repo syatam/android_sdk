@@ -43,9 +43,9 @@ public class Adjust {
         adjustInstance.trackEvent(event);
     }
 
-    public static void onResume() {
+    public static void onResume(Context context) {
         AdjustInstance adjustInstance = Adjust.getDefaultInstance();
-        adjustInstance.onResume();
+        adjustInstance.onResume(context);
     }
 
     public static void onPause() {

@@ -1,5 +1,6 @@
 package com.adjust.sdk;
 
+import android.content.Context;
 import android.net.Uri;
 
 import org.json.JSONObject;
@@ -10,7 +11,7 @@ import org.json.JSONObject;
 public interface IActivityHandler {
     public void init(AdjustConfig config);
 
-    public void trackSubsessionStart();
+    public void trackSubsessionStart(Context context);
 
     public void trackSubsessionEnd();
 

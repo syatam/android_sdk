@@ -1,7 +1,9 @@
 package com.adjust.example;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -12,6 +14,8 @@ import android.widget.Toast;
 
 import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustEvent;
+import com.adjust.sdk.AdjustFactory;
+import com.adjust.sdk.ILogger;
 
 public class MainActivity extends ActionBarActivity {
     private static final String EVENT_TOKEN_SIMPLE      = "{YourEventToken}";
@@ -60,9 +64,17 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onTrackSimpleEventClick(View v) {
-        AdjustEvent event = new AdjustEvent(EVENT_TOKEN_SIMPLE);
 
-        Adjust.trackEvent(event);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        alertDialogBuilder.setTitle("setTitle");
+        alertDialogBuilder.setMessage("setMessage");
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+
+        //AdjustEvent event = new AdjustEvent(EVENT_TOKEN_SIMPLE);
+
+        //Adjust.trackEvent(event);
     }
 
     public void onTrackRevenueEventClick(View v) {

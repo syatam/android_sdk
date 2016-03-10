@@ -2,6 +2,7 @@ package com.adjust.example;
 
 import android.app.Activity;
 import android.app.Application;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -61,7 +62,7 @@ public class GlobalApplication extends Application {
     private static final class AdjustLifecycleCallbacks implements ActivityLifecycleCallbacks {
         @Override
         public void onActivityResumed(Activity activity) {
-            Adjust.onResume();
+            Adjust.onResume(activity);
         }
 
         @Override
