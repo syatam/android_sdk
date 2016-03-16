@@ -39,5 +39,13 @@
                 <data android:scheme="example" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".ServiceExample"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".IntentServiceExample"
+            android:exported="true" />
     </application>
 </manifest>
