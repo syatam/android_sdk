@@ -16,6 +16,27 @@ import base.*;
  */
 
 public class TestAdjustConfig extends UnitTestBase {
+
+    private static class TestableAdjustConfig extends TestableClass {
+        AdjustConfig adjustConfig;
+
+        public TestableAdjustConfig(AdjustConfig adjustConfig) {
+            this.adjustConfig = adjustConfig;
+        }
+
+        public Context getContext() {
+            return getPrivateField(adjustConfig, "context");
+        }
+
+        public String getAppToken() {
+            return getPrivateField(adjustConfig, "appToken");
+        }
+
+        public String getEnvironment() {
+            return getPrivateField(adjustConfig, "environment");
+        }
+    }
+
     @Mock
     private Context context;
 
@@ -34,42 +55,68 @@ public class TestAdjustConfig extends UnitTestBase {
 
     @Test
     public void returnConfig_sandbox() {
+        Context context = this.context;
         String environment = "sandbox";
         String appToken = "123456789012";
-        AdjustConfig adjustConfig = new AdjustConfig(context, appToken, environment);
+
+        TestableAdjustConfig adjustConfig =
+                new TestableAdjustConfig(
+                        new AdjustConfig(context, appToken, environment));
 
         Assert.assertNotNull(adjustConfig);
-        // TODO: 7/24/16 assert environment is sandbox
+        Assert.assertEquals(adjustConfig.getEnvironment(), "sandbox");
     }
 
     @Test
     public void returnConfig_production() {
+        Context context = this.context;
         String environment = "production";
         String appToken = "123456789012";
-        AdjustConfig adjustConfig = new AdjustConfig(context, appToken, environment);
+
+        TestableAdjustConfig adjustConfig =
+                new TestableAdjustConfig(
+                        new AdjustConfig(context, appToken, environment));
 
         Assert.assertNotNull(adjustConfig);
-        // TODO: 7/24/16 assert environment is production
+        Assert.assertEquals(adjustConfig.getEnvironment(), "production");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void returnConfig_noContext() {
+        Context context = null;
         String environment = "production";
         String appToken = "123456789012";
-        AdjustConfig adjustConfig = new AdjustConfig(null, appToken, environment);
+
+        TestableAdjustConfig adjustConfig =
+                new TestableAdjustConfig(
+                        new AdjustConfig(context, appToken, environment));
+
+        Assert.assertNull(adjustConfig.getContext());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void returnConfig_noAppToken() {
+        Context context = this.context;
         String environment = "production";
         String appToken = null;
-        AdjustConfig adjustConfig = new AdjustConfig(null, appToken, environment);
+
+        TestableAdjustConfig adjustConfig =
+                new TestableAdjustConfig(
+                        new AdjustConfig(context, appToken, environment));
+
+        Assert.assertNull(adjustConfig.getAppToken());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void returnConfig_noEnvironment() {
+        Context context = this.context;
         String environment = null;
         String appToken = "123456789012";
-        AdjustConfig adjustConfig = new AdjustConfig(null, appToken, environment);
+
+        TestableAdjustConfig adjustConfig =
+                new TestableAdjustConfig(
+                        new AdjustConfig(context, appToken, environment));
+
+        Assert.assertNull(adjustConfig.getEnvironment());
     }
 }

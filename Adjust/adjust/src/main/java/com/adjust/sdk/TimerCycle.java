@@ -72,4 +72,8 @@ public class TimerCycle {
 
         isPaused = true;
     }
+
+    public boolean isPaused() {
+        return isPaused;
+    }
 }

@@ -87,7 +87,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         }
     }
 
-    private ActivityHandler(AdjustConfig adjustConfig) {
+    protected ActivityHandler(AdjustConfig adjustConfig) {
         super(LOGTAG, MIN_PRIORITY);
         setDaemon(true);
         start();
@@ -99,15 +99,15 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         if (AdjustConfig.ENVIRONMENT_PRODUCTION.equals(adjustConfig.environment)) {
             logger.setLogLevel(LogLevel.ASSERT);
         } else {
-            logger.setLogLevel(adjustConfig.logLevel);
+            logger.setLogLevel(adjustConfig.getLogLevel());
         }
 
         this.internalHandler = new Handler(getLooper());
         internalState = new InternalState();
 
         // read files to have sync values available
-        readAttribution(adjustConfig.context);
-        readActivityState(adjustConfig.context);
+        readAttribution(adjustConfig.getContext());
+        readActivityState(adjustConfig.getContext());
 
         // enabled by default
         if (activityState == null) {

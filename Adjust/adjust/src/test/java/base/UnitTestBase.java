@@ -10,6 +10,7 @@ import org.junit.*;
 import org.junit.runner.*;
 import org.robolectric.*;
 import org.robolectric.annotation.*;
+import org.robolectric.shadows.*;
 
 import java.util.*;
 

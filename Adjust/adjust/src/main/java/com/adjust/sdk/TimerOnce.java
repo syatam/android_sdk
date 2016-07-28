@@ -60,4 +60,9 @@ public class TimerOnce {
     public void cancel() {
         cancel(true);
     }
+
+    public boolean isCancelled() {
+        return waitingTask == null || waitingTask.isCancelled();
+
+    }
 }
