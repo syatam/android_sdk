@@ -87,7 +87,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         }
     }
 
-    protected ActivityHandler(AdjustConfig adjustConfig) {
+    private ActivityHandler(AdjustConfig adjustConfig) {
         super(LOGTAG, MIN_PRIORITY);
         setDaemon(true);
         start();
@@ -246,12 +246,12 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     public void finishedTrackingActivity(ResponseData responseData) {
         // redirect session responses to attribution handler to check for attribution information
         if (responseData instanceof SessionResponseData) {
-            attributionHandler.checkSessionResponse((SessionResponseData)responseData);
+            attributionHandler.checkSessionResponse((SessionResponseData) responseData);
             return;
         }
         // check if it's an event response
         if (responseData instanceof EventResponseData) {
-            launchEventResponseTasks((EventResponseData)responseData);
+            launchEventResponseTasks((EventResponseData) responseData);
             return;
         }
     }
@@ -286,8 +286,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     }
 
     private void updateStatus(boolean pausingState, String pausingMessage,
-                              String remainsPausedMessage, String unPausingMessage)
-    {
+                              String remainsPausedMessage, String unPausingMessage) {
         // it is changing from an active state to a pause state
         if (pausingState) {
             logger.info(pausingMessage);
@@ -298,7 +297,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         // it is remaining in a pause state
         if (paused()) {
             logger.info(remainsPausedMessage);
-        // it is changing from a pause state to an active state
+            // it is changing from a pause state to an active state
         } else {
             logger.info(unPausingMessage);
             updateHandlersStatusAndSend();
@@ -306,8 +305,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     }
 
     private boolean hasChangedState(boolean previousState, boolean newState,
-                                    String trueMessage, String falseMessage)
-    {
+                                    String trueMessage, String falseMessage) {
         if (previousState != newState) {
             return true;
         }
@@ -474,7 +472,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         SESSION_INTERVAL = AdjustFactory.getSessionInterval();
         SUBSESSION_INTERVAL = AdjustFactory.getSubsessionInterval();
 
-        deviceInfo = new DeviceInfo(adjustConfig.context, adjustConfig.sdkPrefix);
+        deviceInfo = new DeviceInfo(adjustConfig.getContext(), adjustConfig.sdkPrefix);
 
         if (adjustConfig.eventBufferingEnabled) {
             logger.info("Event buffering is enabled");
@@ -485,8 +483,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
             logger.warn("Unable to get Google Play Services Advertising ID at start time");
             if (deviceInfo.macSha1 == null &&
                     deviceInfo.macShortMd5 == null &&
-                    deviceInfo.androidId == null)
-            {
+                    deviceInfo.androidId == null) {
                 logger.error("Unable to get any device id's. Please check if Proguard is correctly set with Adjust SDK");
             }
         } else {
@@ -577,7 +574,9 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     }
 
     private void checkAttributionState() {
-        if (!checkActivityState(activityState)) { return; }
+        if (!checkActivityState(activityState)) {
+            return;
+        }
 
         // if it's a new session
         if (activityState.subsessionCount <= 1) {
@@ -801,7 +800,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     }
 
     private void sendReferrerInternal(String referrer, long clickTime) {
-        if (referrer == null || referrer.length() == 0 ) {
+        if (referrer == null || referrer.length() == 0) {
             return;
         }
         PackageBuilder clickPackageBuilder = queryStringClickPackageBuilder(referrer);
@@ -941,7 +940,9 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     }
 
     private boolean updateActivityState(long now) {
-        if (!checkActivityState(activityState)) { return false; }
+        if (!checkActivityState(activityState)) {
+            return false;
+        }
 
         long lastInterval = now - activityState.lastActivity;
         // ignore late updates

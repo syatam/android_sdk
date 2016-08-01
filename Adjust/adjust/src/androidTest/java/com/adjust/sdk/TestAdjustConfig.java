@@ -1,13 +1,9 @@
-package com.adjust.sdk.unit;
+package com.adjust.sdk;
 
 import android.content.*;
 
-import com.adjust.sdk.*;
-
 import org.junit.*;
 import org.mockito.*;
-
-import org.mockito.Mock;
 
 import base.*;
 
@@ -16,6 +12,10 @@ import base.*;
  */
 
 public class TestAdjustConfig extends UnitTestBase {
+
+    public TestAdjustConfig(Class<UnitTestActivity> activityClass) {
+        super(activityClass);
+    }
 
     private static class TestableAdjustConfig extends TestableClass {
         AdjustConfig adjustConfig;
@@ -36,9 +36,6 @@ public class TestAdjustConfig extends UnitTestBase {
             return getPrivateField(adjustConfig, "environment");
         }
     }
-
-    @Mock
-    private Context context;
 
     @Override
     @Before

@@ -31,3 +31,19 @@
     java.lang.String getId ();
     boolean isLimitAdTrackingEnabled();
 }
+
+-libraryjars <java.home>/lib/rt.jar
+
+-dontwarn okio.**
+-dontwarn org.apache.**
+
+# Remove logging
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static *** d(...);
+    public static *** w(...);
+    public static *** e(...);
+    public static *** v(...);
+    public static *** i(...);
+    public static *** wtf(...);
+}

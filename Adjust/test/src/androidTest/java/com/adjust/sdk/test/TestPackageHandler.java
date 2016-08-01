@@ -13,6 +13,8 @@ import com.adjust.sdk.PackageHandler;
 import com.adjust.sdk.ResponseData;
 import com.adjust.sdk.UnknownResponseData;
 
+import org.junit.*;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +62,7 @@ public class TestPackageHandler extends ActivityInstrumentationTestCase2<UnitTes
         AdjustFactory.setLogger(null);
     }
 
+    @Test
     public void testAddPackage() {
         // assert test name to read better in logcat
         mockLogger.Assert("TestPackageHandler testAddPackage");

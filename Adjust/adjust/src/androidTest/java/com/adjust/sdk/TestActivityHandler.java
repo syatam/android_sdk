@@ -1,52 +1,155 @@
-//package com.adjust.sdk;
+package com.adjust.sdk;
+
+import android.content.Context;
+import android.support.test.*;
+import android.support.test.runner.*;
+import android.util.*;
+
+import static org.junit.Assert.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.*;
+
+import base.*;
+
+import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+
+@RunWith(AndroidJUnit4.class)
+public class TestActivityHandler extends UnitTestBase {
+    private static final String TAG = "TestActivityHandler";
+
+    private static class TestableActivityHandler extends TestableClass {
+        ActivityHandler activityHandler;
+
+        public TestableActivityHandler(ActivityHandler activityHandler) {
+            this.activityHandler = activityHandler;
+        }
+
+        public TimerOnce getBackgroundTimer() {
+            return getPrivateField(activityHandler, "backgroundTimer");
+        }
+
+        public TimerCycle getForegroundTimer() {
+            return getPrivateField(activityHandler, "foregroundTimer");
+        }
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+//        MockitoAnnotations.initMocks(this);
+
+//        mockLogger = new MockLogger();
+//        mockPackageHandler = new MockPackageHandler(mockLogger);
+//        mockAttributionHandler = new MockAttributionHandler(mockLogger);
+//        mockSdkClickHandler = new MockSdkClickHandler(mockLogger);
+//        assertUtil = new AssertUtil(mockLogger);
 //
-//import android.content.Context;
-//import android.content.pm.PackageManager;
-//import android.net.Uri;
-//import android.os.SystemClock;
-//import android.support.test.rule.*;
-//import android.support.test.runner.*;
-//import android.test.ActivityInstrumentationTestCase2;
-//import android.test.mock.MockContext;
-//import android.test.suitebuilder.annotation.*;
+//        AdjustFactory.setLogger(mockLogger);
+//        AdjustFactory.setPackageHandler(mockPackageHandler);
+//        AdjustFactory.setAttributionHandler(mockAttributionHandler);
+//        AdjustFactory.setSdkClickHandler(mockSdkClickHandler);
+
 //
-//import com.adjust.sdk.ActivityHandler;
-//import com.adjust.sdk.ActivityHandler.InternalState;
-//import com.adjust.sdk.ActivityPackage;
-//import com.adjust.sdk.Adjust;
-//import com.adjust.sdk.AdjustAttribution;
-//import com.adjust.sdk.AdjustConfig;
-//import com.adjust.sdk.AdjustEvent;
-//import com.adjust.sdk.AdjustEventFailure;
-//import com.adjust.sdk.AdjustEventSuccess;
-//import com.adjust.sdk.AdjustFactory;
-//import com.adjust.sdk.AdjustSessionFailure;
-//import com.adjust.sdk.AdjustSessionSuccess;
-//import com.adjust.sdk.AttributionResponseData;
-//import com.adjust.sdk.ClickResponseData;
-//import com.adjust.sdk.Constants;
-//import com.adjust.sdk.EventResponseData;
-//import com.adjust.sdk.LogLevel;
-//import com.adjust.sdk.OnAttributionChangedListener;
-//import com.adjust.sdk.OnDeeplinkResponseListener;
-//import com.adjust.sdk.OnEventTrackingFailedListener;
-//import com.adjust.sdk.OnEventTrackingSucceededListener;
-//import com.adjust.sdk.OnSessionTrackingFailedListener;
-//import com.adjust.sdk.OnSessionTrackingSucceededListener;
-//import com.adjust.sdk.ResponseData;
-//import com.adjust.sdk.SessionResponseData;
+//        // deleting the activity state file to simulate a first session
+//        boolean activityStateDeleted = ActivityHandler.deleteActivityState(context);
+//        boolean attributionDeleted = ActivityHandler.deleteAttribution(context);
 //
-//import static org.junit.Assert.*;
+//        mockLogger.test("Was AdjustActivityState deleted? " + activityStateDeleted);
 //
-//import org.json.JSONException;
-//import org.json.JSONObject;
-//import org.junit.*;
-//import org.junit.runner.*;
+//        // deleting the attribution file to simulate a first session
+//        mockLogger.test("Was Attribution deleted? " + attributionDeleted);
 //
-//@RunWith(AndroidJUnit4.class)
-//@LargeTest
-//public class TestActivityHandler {
-//    protected MockLogger mockLogger;
+//        // check the server url
+//        assertEquals(Constants.BASE_URL, "https://app.adjust.com");
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    @Test
+    public void returnInstance_noConfig() {
+        AdjustConfig adjustConfig = null;
+
+        TestableActivityHandler activityHandler
+                = new TestableActivityHandler(ActivityHandler.getInstance(adjustConfig));
+
+        assertNull(activityHandler);
+    }
+
+    @Test
+    public void returnInstance_withConfig() {
+        AdjustConfig adjustConfig = getConfig();
+
+        TestableActivityHandler activityHandler
+                = new TestableActivityHandler(ActivityHandler.getInstance(adjustConfig));
+
+        assertNotNull(activityHandler);
+    }
+
+    @Test
+    public void returnInstance_invalidConfig() {
+        AdjustConfig adjustConfig = mock(AdjustConfig.class);
+        when(adjustConfig.isValid()).thenReturn(false);
+
+        TestableActivityHandler activityHandler
+                = new TestableActivityHandler(ActivityHandler.getInstance(adjustConfig));
+
+        assertNull(activityHandler);
+    }
+
+    @Test
+    public void test_onResume() {
+        AdjustConfig adjustConfig = getConfig();
+
+        final TestableActivityHandler activityHandler
+                = new TestableActivityHandler(ActivityHandler.getInstance(adjustConfig));
+
+        assertNotNull(activityHandler);
+
+        activityHandler.activityHandler.onResume();
+
+        InstrumentationRegistry.getInstrumentation().waitForIdle(new Runnable() {
+            @Override
+            public void run() {
+                assertTrue(activityHandler.getBackgroundTimer().isCancelled());
+                assertFalse(activityHandler.getForegroundTimer().isPaused());
+            }
+        });
+    }
+
+    @Test
+    public void test_onPause() {
+        AdjustConfig adjustConfig = getConfig();
+
+        TestableActivityHandler activityHandler
+                = new TestableActivityHandler(ActivityHandler.getInstance(adjustConfig));
+
+        assertNotNull(activityHandler);
+
+        activityHandler.activityHandler.onPause();
+
+        assertFalse(activityHandler.getBackgroundTimer().isCancelled());
+        assertTrue(activityHandler.getForegroundTimer().isPaused());
+    }
+
+//    private AdjustConfig getMockConfig() {
+//        AdjustConfig adjustConfig = mock(AdjustConfig.class);
+//        when(adjustConfig.isValid()).thenReturn(true);
+//        when(adjustConfig.getContext()).thenReturn(context);
+//        when(adjustConfig.getLogLevel()).thenReturn(LogLevel.ASSERT);
+//
+//        return adjustConfig;
+//    }
+
+
+    //    protected MockLogger mockLogger;
 //    protected MockPackageHandler mockPackageHandler;
 //    protected MockAttributionHandler mockAttributionHandler;
 //    protected MockSdkClickHandler mockSdkClickHandler;
@@ -2308,21 +2411,21 @@
 //    }
 //
 //
-//    private AdjustConfig getConfig() {
-//        return getConfig(null);
-//    }
-//
-//    private AdjustConfig getConfig(LogLevel logLevel) {
-//        return getConfig(logLevel, "sandbox", "123456789012", context);
-//    }
-//
-//    private AdjustConfig getConfig(LogLevel logLevel,
-//                                   String environment,
-//                                   String appToken,
-//                                   Context context) {
-//        AdjustConfig adjustConfig = new AdjustConfig(context, appToken, environment);
-//
-//        if (adjustConfig != null) {
+    private AdjustConfig getConfig() {
+        return getConfig(null);
+    }
+
+    private AdjustConfig getConfig(LogLevel logLevel) {
+        return getConfig(logLevel, "sandbox", "123456789012", context);
+    }
+
+    private AdjustConfig getConfig(LogLevel logLevel,
+                                   String environment,
+                                   String appToken,
+                                   Context context) {
+        AdjustConfig adjustConfig = new AdjustConfig(context, appToken, environment);
+
+        if (adjustConfig != null) {
 //            if (environment == "sandbox") {
 //                assertUtil.Assert("SANDBOX: Adjust is running in Sandbox mode. Use this setting for testing. Don't forget to set the environment to `production` before publishing!");
 //            } else if (environment == "production") {
@@ -2330,14 +2433,14 @@
 //            } else {
 //                fail();
 //            }
-//
-//            if (logLevel != null) {
-//                adjustConfig.setLogLevel(logLevel);
-//            }
-//        }
-//
-//        return adjustConfig;
-//    }
+
+            if (logLevel != null) {
+                adjustConfig.setLogLevel(logLevel);
+            }
+        }
+
+        return adjustConfig;
+    }
 //
 //    private ActivityHandler getFirstActivityHandler(AdjustConfig config) {
 //        return getActivityHandler(config, true, null, null, false, LogLevel.INFO);
@@ -2506,5 +2609,5 @@
 //            }
 //        }
 //    }
-//}
+}
 

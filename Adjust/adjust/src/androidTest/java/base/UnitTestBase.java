@@ -1,30 +1,29 @@
 package base;
 
-import android.app.*;
 import android.content.*;
 import android.os.*;
+import android.support.test.*;
+import android.support.test.rule.*;
+import android.support.test.runner.*;
+import android.test.*;
 
 import com.adjust.sdk.*;
 
 import org.junit.*;
 import org.junit.runner.*;
-import org.robolectric.*;
-import org.robolectric.annotation.*;
-import org.robolectric.shadows.*;
 
 import java.util.*;
 
-import static org.robolectric.Robolectric.*;
-import static org.robolectric.shadows.ShadowApplication.*;
-import static org.robolectric.shadows.ShadowLooper.*;
 import static java.util.UUID.*;
 
 /**
  * Robolectric + JUnit Tests.
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
-public abstract class UnitTestBase {
+@RunWith(AndroidJUnit4.class)
+public class UnitTestBase
+        extends ActivityInstrumentationTestCase2<UnitTestActivity> {
+
+    protected Context context;
 
     // Testing Comparisons
     protected static final int NUMBER_NEGATIVE_ONE = -1;
@@ -46,18 +45,23 @@ public abstract class UnitTestBase {
     protected static final Long LONG_RANDOM = new Random().nextLong();
     protected static final Double DOUBLE_RANDOM = new Random().nextDouble();
 
+    public UnitTestBase() {
+        super(UnitTestActivity.class);
+    }
+
+    public UnitTestBase(Class<UnitTestActivity> mainActivity) {
+        super(mainActivity);
+    }
+
     @Before
     public void setUp() throws Exception {
+        super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
+        context = getActivity();
     }
 
     @After
     public void tearDown() throws Exception {
-    }
-
-    public void finishThreads() {
-        runBackgroundTasks();
-        flushForegroundThreadScheduler();
-        flushBackgroundThreadScheduler();
-        runUiThreadTasksIncludingDelayedTasks();
+        super.tearDown();
     }
 }
