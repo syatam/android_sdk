@@ -11,27 +11,12 @@ package com.adjust.sdk;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
-import android.os.Looper;
+import android.os.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -106,7 +91,7 @@ public class Util {
         }
 
         logger.debug("GoogleAdId being read in the foreground");
-        new AsyncTask<Context,Void,String>() {
+        new AsyncTask<Context, Void, String>() {
             @Override
             protected String doInBackground(Context... params) {
                 ILogger logger = AdjustFactory.getLogger();
@@ -135,6 +120,7 @@ public class Util {
     public static Map<String, String> getPluginKeys(Context context) {
         return Reflection.getPluginKeys(context);
     }
+
     public static String getAndroidId(Context context) {
         return Reflection.getAndroidId(context);
     }
@@ -284,8 +270,7 @@ public class Util {
     }
 
     public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(String urlString, String clientSdk)
-            throws IOException
-    {
+            throws IOException {
         URL url = new URL(urlString);
         AdjustFactory.URLGetConnection urlGetConnection = AdjustFactory.getHttpsURLGetConnection(url);
 
@@ -300,8 +285,7 @@ public class Util {
     public static HttpsURLConnection createPOSTHttpsURLConnection(String urlString, String clientSdk,
                                                                   Map<String, String> parameters,
                                                                   int queueSize)
-            throws IOException
-    {
+            throws IOException {
         URL url = new URL(urlString);
         HttpsURLConnection connection = AdjustFactory.getHttpsURLConnection(url);
 
@@ -323,7 +307,7 @@ public class Util {
     private static String getPostDataString(Map<String, String> body, int queueSize) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
 
-        for(Map.Entry<String, String> entry : body.entrySet()) {
+        for (Map.Entry<String, String> entry : body.entrySet()) {
             String encodedName = URLEncoder.encode(entry.getKey(), Constants.ENCODING);
             String value = entry.getValue();
             String encodedValue = value != null ? URLEncoder.encode(value, Constants.ENCODING) : "";
@@ -536,8 +520,8 @@ public class Util {
         // get the random range
         double randomDouble = randomInRange(backoffStrategy.minRange, backoffStrategy.maxRange);
         // apply jitter factor
-        double waitingTime =  ceilingTime * randomDouble;
-        return (long)waitingTime;
+        double waitingTime = ceilingTime * randomDouble;
+        return (long) waitingTime;
     }
 
     private static double randomInRange(double minRange, double maxRange) {
@@ -546,5 +530,46 @@ public class Util {
         double scaled = random.nextDouble() * range;
         double shifted = scaled + minRange;
         return shifted;
+    }
+
+    public static int getNumberOfCores() {
+        if (Build.VERSION.SDK_INT >= 17) {
+            return Runtime.getRuntime().availableProcessors();
+        } else {
+            // Use saurabh64's answer
+            return getNumCoresOldPhones();
+        }
+    }
+
+    /**
+     * Gets the number of cores available in this device, across all processors.
+     * Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
+     *
+     * @return The number of cores, or 1 if failed to get result
+     */
+    private static int getNumCoresOldPhones() {
+        //Private Class to display only CPU devices in the directory listing
+        class CpuFilter implements FileFilter {
+            @Override
+            public boolean accept(File pathname) {
+                //Check if filename is "cpu", followed by a single digit number
+                if (Pattern.matches("cpu[0-9]+", pathname.getName())) {
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        try {
+            //Get directory containing CPU info
+            File dir = new File("/sys/devices/system/cpu/");
+            //Filter to only list the devices we care about
+            File[] files = dir.listFiles(new CpuFilter());
+            //Return the number of cores (virtual CPU devices)
+            return files.length;
+        } catch (Exception e) {
+            //Default to return 1 core
+            return 1;
+        }
     }
 }

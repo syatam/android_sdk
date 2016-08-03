@@ -18,6 +18,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import com.adjust.sdk.threading.*;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -228,6 +230,14 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
 
     @Override
     public void trackEvent(final AdjustEvent event) {
+        // TODO: 8/3/16 is this it to replace the entire codebase??
+//        ThreadManager.getInstance().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        });
+
         internalHandler.post(new Runnable() {
             @Override
             public void run() {

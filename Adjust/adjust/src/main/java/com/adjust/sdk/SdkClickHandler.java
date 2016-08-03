@@ -5,6 +5,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 
+import com.adjust.sdk.threading.*;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
@@ -15,30 +17,24 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.HttpsURLConnection;
 
 /**
- * Created by pfms on 31/03/16.
+ * Created by Abdullah on 3/8/16.
  */
-public class SdkClickHandler extends HandlerThread implements ISdkClickHandler {
-    private Handler internalHandler;
+public class SdkClickHandler implements ISdkClickHandler {
     private ILogger logger;
     private boolean paused;
     private List<ActivityPackage> packageQueue;
     private BackoffStrategy backoffStrategy;
 
     public SdkClickHandler(boolean startsSending) {
-        super(Constants.LOGTAG, MIN_PRIORITY);
-        setDaemon(true);
-        start();
-
         init(startsSending);
         this.logger = AdjustFactory.getLogger();
-        this.internalHandler = new Handler(getLooper());
         this.backoffStrategy = AdjustFactory.getSdkClickBackoffStrategy();
     }
 
     @Override
     public void init(boolean startsSending) {
         this.paused = !startsSending;
-        this.packageQueue = new ArrayList<ActivityPackage>();
+        this.packageQueue = new ArrayList<>();
     }
 
     @Override
@@ -55,7 +51,7 @@ public class SdkClickHandler extends HandlerThread implements ISdkClickHandler {
 
     @Override
     public void sendSdkClick(final ActivityPackage sdkClick) {
-        internalHandler.post(new Runnable() {
+        ThreadManager.getInstance().execute(new Runnable() {
             @Override
             public void run() {
                 packageQueue.add(sdkClick);
@@ -67,7 +63,7 @@ public class SdkClickHandler extends HandlerThread implements ISdkClickHandler {
     }
 
     private void sendNextSdkClick() {
-        internalHandler.post(new Runnable() {
+        ThreadManager.getInstance().execute(new Runnable() {
             @Override
             public void run() {
                 if (paused) {
